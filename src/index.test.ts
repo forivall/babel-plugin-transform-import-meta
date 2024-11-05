@@ -49,9 +49,9 @@ const unknownKeysSpec = (
   });
 };
 
-describe('babel-plugin-import-meta', () => {
+const transformSpec = (baseOptions: PluginOptions | undefined) => {
   describe('ES5', () => {
-    const pluginOptions: PluginOptions | undefined = undefined;
+    const pluginOptions: PluginOptions | undefined = baseOptions && { ...baseOptions };
 
     test('transforms import.meta.url', () => {
       const input = dedent(`
@@ -72,7 +72,7 @@ describe('babel-plugin-import-meta', () => {
   });
 
   describe('ES6', () => {
-    const pluginOptions: PluginOptions | undefined = { module: 'ES6' };
+    const pluginOptions: PluginOptions | undefined = { ...baseOptions, module: 'ES6' };
 
     test('transforms import.meta.url', () => {
       const input = dedent(`
@@ -112,5 +112,11 @@ describe('babel-plugin-import-meta', () => {
     });
 
     unknownKeysSpec(pluginOptions);
+  });
+};
+
+describe('babel-plugin-import-meta', () => {
+  describe.each(['enter', 'exit'] as const)('phase: %s', (phase) => {
+    transformSpec(phase === 'exit' ? { phase } : undefined);
   });
 });
